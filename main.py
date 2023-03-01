@@ -91,3 +91,51 @@ for i in range(10):
         brick = Brick((255-i*25, i*25, 0), i*80+60, j*25+50)
         bricks.add(brick)
         all_sprites.add(brick)
+
+# game loop
+running = True
+while running:
+    # set the game speed
+    clock.tick(FPS)
+
+    # handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # update the sprites
+    all_sprites.update()
+
+    # check for collision between ball and paddle
+    if pygame.sprite.collide_rect(ball, paddle):
+        ball.dy = -1
+
+        # increase ball speed when hitting paddle
+        ball.speed += 0.1
+
+        # limit the maximum speed of the ball
+        if ball.speed > 5:
+            ball.speed = 5
+
+    # check for collision between ball and bricks
+    hits = pygame.sprite.spritecollide(ball, bricks, True)
+    if hits:
+        ball.dy *= -1
+        score += 10
+
+        # check if all the bricks have been destroyed
+        if not bricks:
+            level += 1
+            if level > 3:
+                # if all levels have been completed, display the victory message and exit the game
+                running = False
+                font = pygame.font.SysFont(None, 48)
+                text = font.render("YOU WIN!", True, WHITE)
+                screen.blit(text, (WIDTH / 2 - 100, HEIGHT / 2))
+            else:
+                # if not all levels have been completed, create a new set of bricks for the next level
+                for i in range(10):
+                    for j in range(5):
+                        brick = Brick((255 - i * 25, i * 25, 0), i * 80 + 60, j * 25 + 50)
+                        bricks.add(brick)
+                        all_sprites.add(brick)
